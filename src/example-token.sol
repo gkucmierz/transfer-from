@@ -63,7 +63,8 @@ contract ExtendedToken is ERCTransferFrom {
     name = 'Token Name';
     symbol = 'TFT';
     decimals = 18;
-    totalSupply = 0;
+    totalSupply = 10 ** decimals * 1000_000_000;
+    balanceOf[msg.sender] = totalSupply;
   }
 
   function _transfer(address sender, address recipient, uint256 amount) internal override returns (bool) {
