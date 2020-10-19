@@ -44,17 +44,25 @@ contract ERC20 {
 }
 
 contract ERCTransferFrom is ERC20 {
+  mapping (bytes32 => bool) transferred;
+
   function transferFrom(address recipient, uint256 amount, uint8 _v, bytes32 _r, bytes32 _s) public returns (bool) {
     bytes32 hash = keccak256(abi.encodePacked('transferFrom', recipient, amount));
+    require(!transferred[hash]);
     address from = ecrecover(hash, _v, _r, _s);
-    return super._transfer(from, recipient, amount);
+    bool success = super._transfer(from, recipient, amount);
+    transferred[hash] = success;
+    return success;
   }
 
   function transferFromUntil(address recipient, uint256 untilBlock, uint256 amount, uint8 _v, bytes32 _r, bytes32 _s) public returns (bool) {
     require (untilBlock <= block.number);
-    bytes32 hash = keccak256(abi.encodePacked('transferFrom', recipient, amount, untilBlock));
+    bytes32 hash = keccak256(abi.encodePacked('transferFromUntil', recipient, amount, untilBlock));
+    require(!transferred[hash]);
     address from = ecrecover(hash, _v, _r, _s);
-    return super._transfer(from, recipient, amount);
+    bool success = super._transfer(from, recipient, amount);
+    transferred[hash] = success;
+    return success;
   }
 }
 
